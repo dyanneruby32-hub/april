@@ -345,6 +345,8 @@
       padding: 16px;
       position: relative;
       box-shadow:
+        0 0 15px rgba(212,175,55,0.3),
+        inset 0 0 10px rgba(212,175,55,0.05),
         inset 0 0 0 1px rgba(74, 0, 16, 0.55),
         inset 0 0 48px rgba(0, 0, 0, 0.55),
         inset 0 -20px 40px rgba(74, 0, 16, 0.25),
@@ -611,6 +613,7 @@
         background 0.25s ease;
       background: linear-gradient(135deg, rgba(214, 171, 88, 0.22), rgba(73, 53, 24, 0.25));
       border-color: rgba(212, 175, 106, 0.55);
+      box-shadow: 0 0 8px rgba(212,175,55,0.15);
     }
 
     .formation-btn:hover:not(.active) {
@@ -624,12 +627,11 @@
     }
 
     .formation-btn.active {
-      border-color: #e4c97a;
+      border-color: #f0d37a;
       background: linear-gradient(135deg, rgba(214, 171, 88, 0.34), rgba(73, 53, 24, 0.38));
       box-shadow:
-        0 0 0 2px rgba(212, 175, 106, 0.75),
-        0 0 36px rgba(212, 175, 106, 0.32),
-        inset 0 0 26px rgba(74, 0, 16, 0.35);
+        0 0 20px rgba(212,175,55,0.5),
+        0 0 40px rgba(212,175,55,0.2);
     }
 
     .formation-title {
@@ -676,7 +678,7 @@
     .proverb {
       position: relative;
       z-index: 1;
-      margin: 2px 2px 12px;
+      margin: 0 2px 14px;
       padding: 10px 12px;
       border-radius: 12px;
       border: 1px solid rgba(212,175,106,.28);
@@ -690,8 +692,18 @@
       align-items: center;
       justify-content: center;
       font-family: "FZYaoTi", "方正姚体", "STKaiti", serif;
-      font-size: 17px;
+      font-size: 1.3rem;
       letter-spacing: 0.16em;
+      opacity: 0;
+    }
+
+    .proverb.show {
+      animation: proverbFade .6s ease forwards;
+    }
+
+    @keyframes proverbFade {
+      from { opacity: 0; }
+      to { opacity: 1; }
     }
 
     .deck-stack {
@@ -731,22 +743,17 @@
     }
 
     .card-grid.revealed .tarot-card {
-      animation: cardRise .6s ease both;
+      animation: cardRise 0.8s ease-out both;
     }
 
-    .card-grid.revealed .tarot-card:nth-child(2) { animation-delay: .08s; }
-    .card-grid.revealed .tarot-card:nth-child(3) { animation-delay: .16s; }
-    .card-grid.revealed .tarot-card:nth-child(4) { animation-delay: .24s; }
-    .card-grid.revealed .tarot-card:nth-child(5) { animation-delay: .32s; }
-    .card-grid.revealed .tarot-card:nth-child(6) { animation-delay: .40s; }
-    .card-grid.revealed .tarot-card:nth-child(7) { animation-delay: .48s; }
-    .card-grid.revealed .tarot-card:nth-child(8) { animation-delay: .56s; }
-    .card-grid.revealed .tarot-card:nth-child(9) { animation-delay: .64s; }
-    .card-grid.revealed .tarot-card:nth-child(10) { animation-delay: .72s; }
+    .card-grid.revealed .tarot-card:nth-child(1) { animation-delay: 0s; }
+    .card-grid.revealed .tarot-card:nth-child(2) { animation-delay: 0.5s; }
+    .card-grid.revealed .tarot-card:nth-child(3) { animation-delay: 1s; }
+    .card-grid.revealed .tarot-card:nth-child(n+4) { animation-delay: 0s; }
 
     @keyframes cardRise {
-      from { opacity: 0; transform: translateY(18px) scale(.96); }
-      to { opacity: 1; transform: translateY(0) scale(1); }
+      from { opacity: 0; transform: translateY(40px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     /* Mobile perf: quantize animations to ~30fps */
@@ -1173,6 +1180,13 @@
       return pool[Math.floor(Math.random() * pool.length)];
     }
 
+    function normalizeProverbText(text) {
+      const t = String(text || "").trim();
+      if (!t) return "星辉低语，答案在你心间";
+      // 去掉外层中英文引号，避免出现多层引号
+      return t.replace(/^["'“‘]+|["'”’]+$/g, "");
+    }
+
     function renderFormationOptions() {
       formationList.innerHTML = formations.map((f) => `
         <button class="formation-btn ${selectedFormation.id === f.id ? "active" : ""}" data-id="${f.id}">
@@ -1240,6 +1254,7 @@
       readingResult.textContent = "正在洗牌与抽牌，请稍候...";
       cardBox.innerHTML = "<div class='card-state'>正在洗牌中...</div>";
       proverbBox.style.display = "none";
+      proverbBox.classList.remove("show");
       proverbBox.textContent = "";
 
       deckStack.classList.add("show");
@@ -1248,17 +1263,19 @@
       renderCards(currentCards);
       await new Promise((r) => setTimeout(r, 180));
       flipAllCards();
-      await new Promise((r) => setTimeout(r, 700 + currentCards.length * 120));
+      const proverbPromise = generateProverb(currentCards).catch(() => "星辉低语，答案在你心间");
+      await new Promise((r) => setTimeout(r, 1800));
       deckStack.classList.remove("show");
 
-      proverbBox.style.display = "flex";
-      proverbBox.textContent = "正在聆听古老的谚语…";
       try {
-        const proverb = await generateProverb(currentCards);
-        proverbBox.textContent = `“${proverb}”`;
+        const proverb = await proverbPromise;
+        proverbBox.textContent = `“${normalizeProverbText(proverb)}”`;
       } catch {
         proverbBox.textContent = "“星辉低语，答案在你心间”";
       }
+      proverbBox.style.display = "flex";
+      void proverbBox.offsetWidth;
+      proverbBox.classList.add("show");
 
       readingResult.textContent = `已完成${selectedFormation.name}，点击“查看AI解读（0.9元）”继续。`;
       readingBtn.disabled = false;
