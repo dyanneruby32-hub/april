@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet">
   <title>塔罗占卜 · 星盘密语</title>
   <style>
     :root {
@@ -17,6 +20,8 @@
       --ok: #7ff5c6;
       --shadow: 0 20px 45px rgba(0, 0, 0, 0.45);
       --fps-steps: 60;
+      --font-title: "Cinzel", ui-serif, "Times New Roman", "Georgia", serif;
+      --font-cn: "ZCOOL XiaoWei", "Microsoft YaHei", "PingFang SC", system-ui, sans-serif;
     }
 
     html.is-mobile {
@@ -35,6 +40,19 @@
         linear-gradient(160deg, #4a0010 0%, #1a0008 100%);
       overflow-x: hidden;
       position: relative;
+    }
+
+    .cn, .q-label, textarea, button, .hint, .reading, .formation-desc, .modal-content, .modal-title {
+      font-family: var(--font-cn);
+    }
+
+    .label-song {
+      font-family: "STZhongsong", "华文中宋", serif !important;
+      letter-spacing: 0.06em;
+    }
+
+    canvas {
+      will-change: transform;
     }
 
     body::before {
@@ -56,6 +74,36 @@
       overflow: hidden;
       pointer-events: none;
       z-index: 0;
+    }
+
+    .sand-layer {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: 1;
+      border-radius: inherit;
+    }
+
+    .sand-grain {
+      position: absolute;
+      top: -10px;
+      left: var(--x);
+      width: var(--size);
+      height: var(--size);
+      border-radius: 999px;
+      background: rgba(212, 175, 55, 0.6);
+      box-shadow: 0 0 6px rgba(212, 175, 55, 0.35);
+      opacity: .58;
+      animation: sandFall var(--dur) linear infinite;
+      animation-delay: var(--delay);
+      will-change: transform, opacity;
+    }
+
+    @keyframes sandFall {
+      0% { transform: translate3d(0, -8px, 0); opacity: 0; }
+      8% { opacity: .58; }
+      100% { transform: translate3d(var(--drift), 108%, 0); opacity: 0; }
     }
 
     .particle {
@@ -134,26 +182,34 @@
       margin: 8px 0 18px;
       font-weight: 700;
       letter-spacing: 0.12em;
-      text-shadow: 0 0 16px rgba(214, 171, 88, 0.45);
-      font-family: ui-serif, "Times New Roman", "Georgia", serif;
+      text-shadow:
+        0 0 6px rgba(255, 220, 140, 0.5),
+        0 0 14px rgba(214, 171, 88, 0.55),
+        0 0 26px rgba(214, 171, 88, 0.35);
+      font-family: var(--font-title);
     }
 
     .subtitle {
       text-align: center;
       margin: 0 0 24px;
       color: var(--muted);
-      font-size: 14px;
-      font-family: "Microsoft YaHei", "PingFang SC", system-ui, sans-serif;
+      font-size: 15px;
+      font-family: var(--font-cn);
       letter-spacing: 0.08em;
+      text-shadow:
+        0 0 4px rgba(255, 220, 140, 0.35),
+        0 0 10px rgba(214, 171, 88, 0.3);
     }
 
     .panel {
-      background: var(--panel);
+      background: linear-gradient(160deg, #2a0d0d 0%, #1a0808 100%);
       border: 1px solid var(--border);
       border-radius: 18px;
       box-shadow: var(--shadow);
       backdrop-filter: blur(5px);
       padding: 16px;
+      position: relative;
+      overflow: hidden;
     }
 
     .panel + .panel { margin-top: 14px; }
@@ -180,13 +236,20 @@
       pointer-events: none;
       opacity: 0.42;
       mix-blend-mode: screen;
-      animation: mandalaDrift 48s linear infinite;
     }
 
-    @keyframes mandalaDrift {
-      from { transform: rotate(0deg) scale(1); }
-      to { transform: rotate(360deg) scale(1); }
+    .mandala-outer {
+      transform-origin: 100px 100px;
+      animation: spinCw 120s linear infinite;
     }
+
+    .mandala-inner {
+      transform-origin: 100px 100px;
+      animation: spinCcw 90s linear infinite;
+    }
+
+    @keyframes spinCw { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    @keyframes spinCcw { from { transform: rotate(0deg); } to { transform: rotate(-360deg); } }
 
     .zodiac::before, .zodiac::after {
       content: "";
@@ -231,6 +294,7 @@
       outline: none;
       font-size: 14px;
       line-height: 1.5;
+      font-family: "STZhongsong", "华文中宋", serif;
     }
 
     textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(214, 171, 88, .15); }
@@ -372,7 +436,7 @@
         linear-gradient(165deg, #140810 0%, #0a0408 100%);
       align-items: center;
       color: #e7d6ab;
-      font-family: ui-serif, "Times New Roman", serif;
+      font-family: var(--font-title);
       letter-spacing: .15em;
       font-size: 13px;
     }
@@ -444,7 +508,7 @@
       font-weight: 700;
       letter-spacing: .12em;
       margin-top: 4px;
-      font-family: ui-serif, "Times New Roman", "Georgia", serif;
+      font-family: var(--font-title);
       text-transform: uppercase;
       color: #f3e6c8;
       text-shadow: 0 0 14px rgba(212, 175, 106, 0.35);
@@ -545,6 +609,8 @@
         border-color 0.2s ease,
         box-shadow 0.25s ease,
         background 0.25s ease;
+      background: linear-gradient(135deg, rgba(214, 171, 88, 0.22), rgba(73, 53, 24, 0.25));
+      border-color: rgba(212, 175, 106, 0.55);
     }
 
     .formation-btn:hover:not(.active) {
@@ -554,12 +620,12 @@
         0 0 28px rgba(212, 175, 106, 0.42),
         0 0 2px rgba(212, 175, 106, 0.9),
         0 10px 22px rgba(0, 0, 0, 0.35);
-      background: linear-gradient(145deg, rgba(212, 175, 106, 0.28), rgba(74, 0, 16, 0.32));
+      background: linear-gradient(135deg, rgba(214, 171, 88, 0.28), rgba(73, 53, 24, 0.32));
     }
 
     .formation-btn.active {
       border-color: #e4c97a;
-      background: linear-gradient(145deg, rgba(212, 175, 106, 0.38), rgba(74, 0, 16, 0.48));
+      background: linear-gradient(135deg, rgba(214, 171, 88, 0.34), rgba(73, 53, 24, 0.38));
       box-shadow:
         0 0 0 2px rgba(212, 175, 106, 0.75),
         0 0 36px rgba(212, 175, 106, 0.32),
@@ -570,7 +636,7 @@
       display: block;
       font-weight: 700;
       margin-bottom: 6px;
-      font-family: ui-serif, "Times New Roman", serif;
+      font-family: var(--font-cn);
       font-size: 17px;
       letter-spacing: 0.06em;
     }
@@ -579,6 +645,8 @@
       display: block;
       font-size: 14px;
       color: rgba(241, 232, 210, 0.78);
+      font-family: "FZYaoTi", "方正姚体", "STKaiti", serif;
+      letter-spacing: 0.04em;
     }
 
     .entry {
@@ -603,6 +671,27 @@
       border: 1px dashed rgba(214,171,88,.28);
       padding: 14px;
       overflow: hidden;
+    }
+
+    .proverb {
+      position: relative;
+      z-index: 1;
+      margin: 2px 2px 12px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(212,175,106,.28);
+      background: linear-gradient(145deg, rgba(45, 10, 46, 0.55), rgba(61, 10, 10, 0.48));
+      box-shadow: inset 0 0 26px rgba(0,0,0,.35);
+      color: rgba(241,232,210,.92);
+      letter-spacing: .12em;
+      text-align: center;
+      min-height: 42px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: "FZYaoTi", "方正姚体", "STKaiti", serif;
+      font-size: 17px;
+      letter-spacing: 0.16em;
     }
 
     .deck-stack {
@@ -662,6 +751,8 @@
 
     /* Mobile perf: quantize animations to ~30fps */
     html.is-mobile .mandala-bg,
+    html.is-mobile .mandala-outer,
+    html.is-mobile .mandala-inner,
     html.is-mobile .entry,
     html.is-mobile .deck-stack.show,
     html.is-mobile .card-grid.revealed .tarot-card {
@@ -674,10 +765,15 @@
         steps(var(--fps-steps), end) !important;
     }
 
+    html.is-mobile .formation-list {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
     @media (max-width: 560px) {
       .title { font-size: 26px; }
       .zodiac { width: 220px; }
       .tarot-card { min-height: 220px; }
+      .formation-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
   </style>
 </head>
@@ -701,34 +797,83 @@
               <stop offset="50%" stop-color="rgba(140,55,70,0.42)"/>
               <stop offset="100%" stop-color="rgba(74,0,16,0.38)"/>
             </linearGradient>
+            <linearGradient id="mandalaGold" x1="0%" y1="100%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="rgba(212,175,106,0.85)"/>
+              <stop offset="50%" stop-color="rgba(255,228,170,0.55)"/>
+              <stop offset="100%" stop-color="rgba(212,175,106,0.75)"/>
+            </linearGradient>
           </defs>
           <circle cx="100" cy="100" r="92" fill="url(#mandalaGlow)"/>
-          <g fill="none" stroke="url(#mandalaLine)" stroke-width="0.55" stroke-linecap="round" opacity="0.9">
-            <circle cx="100" cy="100" r="78"/>
-            <circle cx="100" cy="100" r="64"/>
-            <circle cx="100" cy="100" r="48"/>
-            <circle cx="100" cy="100" r="32"/>
-            <circle cx="100" cy="100" r="16"/>
+
+          <!-- Outer ring (clockwise) -->
+          <g class="mandala-outer" opacity="0.95">
+            <g fill="none" stroke="url(#mandalaGold)" stroke-width="0.9" stroke-linecap="round">
+              <circle cx="100" cy="100" r="86"/>
+              <circle cx="100" cy="100" r="78"/>
+              <circle cx="100" cy="100" r="70"/>
+            </g>
+            <g fill="none" stroke="rgba(212,175,106,0.55)" stroke-width="0.55">
+              <path d="M100 14 L100 30 M100 170 L100 186 M14 100 L30 100 M170 100 L186 100"/>
+              <path d="M42 42 L54 54 M146 146 L158 158 M158 42 L146 54 M42 158 L54 146"/>
+              <path d="M100 22 L154 46 L178 100 L154 154 L100 178 L46 154 L22 100 L46 46 Z"/>
+            </g>
+            <g fill="rgba(74,0,16,0.10)" stroke="rgba(212,175,106,0.5)" stroke-width="0.55">
+              <path d="M100 18 C124 44 126 64 100 94 C74 64 76 44 100 18Z"/>
+              <path d="M100 18 C124 44 126 64 100 94 C74 64 76 44 100 18Z" transform="rotate(18 100 100)"/>
+              <path d="M100 18 C124 44 126 64 100 94 C74 64 76 44 100 18Z" transform="rotate(36 100 100)"/>
+              <path d="M100 18 C124 44 126 64 100 94 C74 64 76 44 100 18Z" transform="rotate(54 100 100)"/>
+              <path d="M100 18 C124 44 126 64 100 94 C74 64 76 44 100 18Z" transform="rotate(72 100 100)"/>
+              <path d="M100 18 C124 44 126 64 100 94 C74 64 76 44 100 18Z" transform="rotate(90 100 100)"/>
+              <path d="M100 18 C124 44 126 64 100 94 C74 64 76 44 100 18Z" transform="rotate(108 100 100)"/>
+              <path d="M100 18 C124 44 126 64 100 94 C74 64 76 44 100 18Z" transform="rotate(126 100 100)"/>
+              <path d="M100 18 C124 44 126 64 100 94 C74 64 76 44 100 18Z" transform="rotate(144 100 100)"/>
+              <path d="M100 18 C124 44 126 64 100 94 C74 64 76 44 100 18Z" transform="rotate(162 100 100)"/>
+              <path d="M100 18 C124 44 126 64 100 94 C74 64 76 44 100 18Z" transform="rotate(180 100 100)"/>
+              <path d="M100 18 C124 44 126 64 100 94 C74 64 76 44 100 18Z" transform="rotate(198 100 100)"/>
+              <path d="M100 18 C124 44 126 64 100 94 C74 64 76 44 100 18Z" transform="rotate(216 100 100)"/>
+              <path d="M100 18 C124 44 126 64 100 94 C74 64 76 44 100 18Z" transform="rotate(234 100 100)"/>
+              <path d="M100 18 C124 44 126 64 100 94 C74 64 76 44 100 18Z" transform="rotate(252 100 100)"/>
+              <path d="M100 18 C124 44 126 64 100 94 C74 64 76 44 100 18Z" transform="rotate(270 100 100)"/>
+              <path d="M100 18 C124 44 126 64 100 94 C74 64 76 44 100 18Z" transform="rotate(288 100 100)"/>
+              <path d="M100 18 C124 44 126 64 100 94 C74 64 76 44 100 18Z" transform="rotate(306 100 100)"/>
+              <path d="M100 18 C124 44 126 64 100 94 C74 64 76 44 100 18Z" transform="rotate(324 100 100)"/>
+              <path d="M100 18 C124 44 126 64 100 94 C74 64 76 44 100 18Z" transform="rotate(342 100 100)"/>
+            </g>
           </g>
-          <g fill="rgba(74,0,16,0.14)" stroke="rgba(212,175,106,0.4)" stroke-width="0.45" opacity="0.92">
-            <path d="M100 28 C118 52 118 68 100 92 C82 68 82 52 100 28Z"/>
-            <path d="M100 28 C118 52 118 68 100 92 C82 68 82 52 100 28Z" transform="rotate(30 100 100)"/>
-            <path d="M100 28 C118 52 118 68 100 92 C82 68 82 52 100 28Z" transform="rotate(60 100 100)"/>
-            <path d="M100 28 C118 52 118 68 100 92 C82 68 82 52 100 28Z" transform="rotate(90 100 100)"/>
-            <path d="M100 28 C118 52 118 68 100 92 C82 68 82 52 100 28Z" transform="rotate(120 100 100)"/>
-            <path d="M100 28 C118 52 118 68 100 92 C82 68 82 52 100 28Z" transform="rotate(150 100 100)"/>
-            <path d="M100 28 C118 52 118 68 100 92 C82 68 82 52 100 28Z" transform="rotate(180 100 100)"/>
-            <path d="M100 28 C118 52 118 68 100 92 C82 68 82 52 100 28Z" transform="rotate(210 100 100)"/>
-            <path d="M100 28 C118 52 118 68 100 92 C82 68 82 52 100 28Z" transform="rotate(240 100 100)"/>
-            <path d="M100 28 C118 52 118 68 100 92 C82 68 82 52 100 28Z" transform="rotate(270 100 100)"/>
-            <path d="M100 28 C118 52 118 68 100 92 C82 68 82 52 100 28Z" transform="rotate(300 100 100)"/>
-            <path d="M100 28 C118 52 118 68 100 92 C82 68 82 52 100 28Z" transform="rotate(330 100 100)"/>
+
+          <!-- Inner ring (counter-clockwise) -->
+          <g class="mandala-inner" opacity="0.95">
+            <g fill="none" stroke="url(#mandalaLine)" stroke-width="0.65" stroke-linecap="round">
+              <circle cx="100" cy="100" r="56"/>
+              <circle cx="100" cy="100" r="48"/>
+              <circle cx="100" cy="100" r="40"/>
+              <circle cx="100" cy="100" r="32"/>
+              <circle cx="100" cy="100" r="24"/>
+              <circle cx="100" cy="100" r="16"/>
+            </g>
+            <g fill="none" stroke="rgba(212,175,106,0.52)" stroke-width="0.5">
+              <path d="M100 44 L112 64 L136 64 L116 78 L124 100 L100 86 L76 100 L84 78 L64 64 L88 64 Z"/>
+              <path d="M100 44 L112 64 L136 64 L116 78 L124 100 L100 86 L76 100 L84 78 L64 64 L88 64 Z" transform="rotate(30 100 100)"/>
+              <path d="M100 44 L112 64 L136 64 L116 78 L124 100 L100 86 L76 100 L84 78 L64 64 L88 64 Z" transform="rotate(60 100 100)"/>
+              <path d="M100 44 L112 64 L136 64 L116 78 L124 100 L100 86 L76 100 L84 78 L64 64 L88 64 Z" transform="rotate(90 100 100)"/>
+              <path d="M100 44 L112 64 L136 64 L116 78 L124 100 L100 86 L76 100 L84 78 L64 64 L88 64 Z" transform="rotate(120 100 100)"/>
+              <path d="M100 44 L112 64 L136 64 L116 78 L124 100 L100 86 L76 100 L84 78 L64 64 L88 64 Z" transform="rotate(150 100 100)"/>
+            </g>
+            <g fill="rgba(212,175,106,0.08)" stroke="rgba(212,175,106,0.48)" stroke-width="0.45">
+              <path d="M100 64 C112 74 116 86 100 96 C84 86 88 74 100 64Z"/>
+              <path d="M100 64 C112 74 116 86 100 96 C84 86 88 74 100 64Z" transform="rotate(20 100 100)"/>
+              <path d="M100 64 C112 74 116 86 100 96 C84 86 88 74 100 64Z" transform="rotate(40 100 100)"/>
+              <path d="M100 64 C112 74 116 86 100 96 C84 86 88 74 100 64Z" transform="rotate(60 100 100)"/>
+              <path d="M100 64 C112 74 116 86 100 96 C84 86 88 74 100 64Z" transform="rotate(80 100 100)"/>
+              <path d="M100 64 C112 74 116 86 100 96 C84 86 88 74 100 64Z" transform="rotate(100 100 100)"/>
+              <path d="M100 64 C112 74 116 86 100 96 C84 86 88 74 100 64Z" transform="rotate(120 100 100)"/>
+              <path d="M100 64 C112 74 116 86 100 96 C84 86 88 74 100 64Z" transform="rotate(140 100 100)"/>
+              <path d="M100 64 C112 74 116 86 100 96 C84 86 88 74 100 64Z" transform="rotate(160 100 100)"/>
+              <path d="M100 64 C112 74 116 86 100 96 C84 86 88 74 100 64Z" transform="rotate(180 100 100)"/>
+            </g>
           </g>
-          <g fill="none" stroke="rgba(212,175,106,0.35)" stroke-width="0.4">
-            <path d="M100 100 L154 64 M100 100 L46 64 M100 100 L46 136 M100 100 L154 136 M100 100 L100 24 M100 100 L100 176 M100 100 L26 100 M100 100 L174 100"/>
-            <path d="M100 100 L130 48 M100 100 L70 48 M100 100 L70 152 M100 100 L130 152 M100 100 L48 70 M100 100 L152 70 M100 100 L48 130 M100 100 L152 130"/>
-          </g>
-          <circle cx="100" cy="100" r="5.5" fill="rgba(212,175,106,0.22)" stroke="rgba(212,175,106,0.55)" stroke-width="0.5"/>
+
+          <circle cx="100" cy="100" r="7" fill="rgba(212,175,106,0.16)" stroke="rgba(212,175,106,0.72)" stroke-width="0.7"/>
         </svg>
         <i style="top:18%;left:52%"></i>
         <i style="top:34%;left:17%"></i>
@@ -736,11 +881,12 @@
         <i style="top:80%;left:63%"></i>
         <i style="top:43%;left:80%"></i>
       </div>
-      <label class="q-label" for="questionInput">请输入你想占卜的问题</label>
+      <div class="sand-layer" id="panelSandLayer" aria-hidden="true"></div>
+      <label class="q-label cn label-song" for="questionInput">请输入你想占卜的问题</label>
       <textarea id="questionInput" placeholder="例如：我最近是否适合换工作？"></textarea>
 
       <div style="margin-top:12px">
-        <span class="q-label" style="margin-bottom:6px">请选择牌阵类型</span>
+        <span class="q-label cn label-song" style="margin-bottom:6px">请选择牌阵类型</span>
         <div id="formationList" class="formation-list"></div>
       </div>
 
@@ -748,11 +894,12 @@
         <button id="drawBtn">抽牌并翻牌</button>
         <button id="readingBtn" disabled>查看AI解读（0.9元）</button>
       </div>
-      <div class="hint">当前为静态页面演示：点击“查看AI解读”后将模拟支付成功，再调用 DeepSeek API（如未配置 API Key 会使用本地模拟解读）。</div>
     </section>
 
     <section class="panel card-wrap entry delay-3">
       <div id="drawZone" class="draw-zone">
+        <div class="sand-layer" id="mandalaSandLayer" aria-hidden="true"></div>
+        <div id="proverbBox" class="proverb cn" style="display:none"></div>
         <div id="deckStack" class="deck-stack" aria-hidden="true">
           <div class="stack-card"></div>
           <div class="stack-card"></div>
@@ -773,12 +920,19 @@
     <div class="modal-content">
       <h2 class="modal-title">解锁 AI 深度解读</h2>
       <div class="price">支付金额：￥0.9</div>
-      <div style="color: var(--muted); font-size: 14px;">
-        说明：当前版本为演示版，点击“立即支付”将模拟支付成功流程。
+      <div class="cn" style="color: var(--muted); font-size: 14px; line-height: 1.6;">
+        请截图保存下方收款码，用支付宝付款后点击“我已付款”继续。
       </div>
+
+      <div style="margin-top: 10px; border-radius: 12px; border: 1px dashed rgba(212,175,106,.35); padding: 14px; text-align:center; background: rgba(0,0,0,.25);">
+        <img id="alipayQr" alt="支付宝收款码" src="qrcode.png" style="max-width: 240px; width: 100%; border-radius: 10px; border: 1px solid rgba(212,175,106,.25); box-shadow: 0 0 22px rgba(0,0,0,.35);" />
+        <div id="alipayQrFallback" class="cn" style="display:none; color: rgba(241,232,210,.85); font-size: 13px;">未找到收款码图片，请你替换路径：`qrcode.png`</div>
+        <div class="cn" style="color: rgba(201,191,166,.85); font-size: 12px; margin-top: 8px;">提示：付款后点击“我已付款”继续解读</div>
+      </div>
+
       <div class="modal-row">
         <button id="cancelPay" class="ghost">取消</button>
-        <button id="confirmPay">立即支付</button>
+        <button id="confirmPay">我已付款</button>
       </div>
     </div>
   </div>
@@ -849,10 +1003,6 @@
       { name: "世界", meaning: "完成、整合、阶段圆满" }
     ];
 
-    const DEEPSEEK_API_URL = "https://api.deepseek.com/chat/completions";
-    // 可选：把你的 DeepSeek Key 填在这里测试真实调用；不填则自动走本地模拟。
-    const DEEPSEEK_API_KEY = "";
-
     const questionInput = document.getElementById("questionInput");
     const drawBtn = document.getElementById("drawBtn");
     const readingBtn = document.getElementById("readingBtn");
@@ -866,10 +1016,18 @@
     const drawZone = document.getElementById("drawZone");
     const deckStack = document.getElementById("deckStack");
     const particleLayer = document.getElementById("particleLayer");
+    const panelSandLayer = document.getElementById("panelSandLayer");
+    const mandalaSandLayer = document.getElementById("mandalaSandLayer");
+    const proverbBox = document.getElementById("proverbBox");
+    const alipayQr = document.getElementById("alipayQr");
+    const alipayQrFallback = document.getElementById("alipayQrFallback");
 
     let currentCards = [];
     let selectedFormation = formations[0];
     let drawing = false;
+    const mobileParticles = [];
+    const mobileSand = [];
+    let mobileAnimatorStarted = false;
 
     const isMobileDevice =
       (typeof window.matchMedia === "function" && window.matchMedia("(max-width: 768px)").matches) ||
@@ -877,7 +1035,7 @@
     if (isMobileDevice) document.documentElement.classList.add("is-mobile");
 
     function createParticles() {
-      const count = isMobileDevice ? 20 : 80;
+      const count = isMobileDevice ? 30 : 80;
       for (let i = 0; i < count; i++) {
         const p = document.createElement("span");
         const trail = Math.random() < (isMobileDevice ? 0.18 : 0.35);
@@ -889,8 +1047,130 @@
         p.style.setProperty("--drift", `${Math.random() * 90 - 45}px`);
         p.style.setProperty("--tw", `${Math.random() * 2.8 + 0.9}s`);
         p.style.setProperty("--peak", `${0.55 + Math.random() * 0.45}`);
+        if (isMobileDevice) {
+          p.style.animation = "none";
+          p.style.left = "0";
+          p.style.top = "0";
+          p.style.willChange = "transform, opacity";
+          mobileParticles.push({
+            el: p,
+            x: Math.random() * 100,
+            y: Math.random() * 110 - 10,
+            vy: Math.random() * 8 + 5,
+            vx: Math.random() * 1.2 - 0.6,
+            peak: 0.45 + Math.random() * 0.45,
+            tw: Math.random() * 1.8 + 0.8,
+            t: Math.random() * Math.PI * 2
+          });
+        }
         particleLayer.appendChild(p);
       }
+    }
+
+    function createSandFlow(targetLayer, count = 120) {
+      if (!targetLayer) return;
+      targetLayer.innerHTML = "";
+      const finalCount = isMobileDevice ? Math.floor(count * 0.45) : count;
+      for (let i = 0; i < finalCount; i++) {
+        const dot = document.createElement("span");
+        dot.className = "sand-grain";
+        dot.style.setProperty("--x", `${Math.random() * 100}%`);
+        dot.style.setProperty("--size", `${Math.random() * 1.7 + 0.6}px`);
+        dot.style.setProperty("--dur", `${Math.random() * 14 + 10}s`);
+        dot.style.setProperty("--delay", `${Math.random() * -18}s`);
+        dot.style.setProperty("--drift", `${Math.random() * 14 - 7}px`);
+        if (isMobileDevice) {
+          dot.style.animation = "none";
+          dot.style.left = "0";
+          dot.style.top = "0";
+          dot.style.willChange = "transform, opacity";
+          mobileSand.push({
+            el: dot,
+            x: Math.random() * 100,
+            y: Math.random() * 110 - 10,
+            vy: Math.random() * 10 + 6,
+            vx: Math.random() * 0.5 - 0.25
+          });
+        }
+        targetLayer.appendChild(dot);
+      }
+    }
+
+    function startMobileAnimationLoop() {
+      if (!isMobileDevice || mobileAnimatorStarted) return;
+      mobileAnimatorStarted = true;
+      let last = 0;
+      const frameMs = 1000 / 30;
+      const tick = (now) => {
+        if (!last) last = now;
+        const dt = now - last;
+        if (dt >= frameMs) {
+          last = now;
+          const step = dt / 1000;
+          for (const p of mobileParticles) {
+            p.y += p.vy * step;
+            p.x += p.vx * step;
+            if (p.y > 110) {
+              p.y = -8;
+              p.x = Math.random() * 100;
+            }
+            p.t += step / p.tw;
+            const twinkle = 0.55 + 0.45 * Math.sin(p.t * Math.PI * 2);
+            p.el.style.transform = `translate3d(${p.x.toFixed(2)}vw, ${p.y.toFixed(2)}vh, 0)`;
+            p.el.style.opacity = `${(p.peak * twinkle).toFixed(3)}`;
+          }
+          for (const s of mobileSand) {
+            s.y += s.vy * step;
+            s.x += s.vx * step;
+            if (s.y > 110) {
+              s.y = -6;
+              s.x = Math.random() * 100;
+            }
+            s.el.style.transform = `translate3d(${s.x.toFixed(2)}%, ${s.y.toFixed(2)}%, 0)`;
+            s.el.style.opacity = "0.56";
+          }
+        }
+        requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    }
+
+    async function siliconFlowChat({ model, prompt, temperature = 0.9, max_tokens = 120 }) {
+      const resp = await fetch("/api/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          model,
+          messages: [{ role: "user", content: prompt }],
+          temperature,
+          max_tokens
+        })
+      });
+
+      if (!resp.ok) throw new Error(`API 请求失败：HTTP ${resp.status}`);
+      const data = await resp.json();
+      const text = data?.choices?.[0]?.message?.content?.trim();
+      return text || "";
+    }
+
+    function cardNameList(cards) {
+      return cards.map((c) => c.name + (c.orientation ? `（${c.orientation}）` : "")).join("、");
+    }
+
+    async function generateProverb(cards) {
+      const prompt = `你是一位古老的占卜师，根据以下塔罗牌阵{${cardNameList(cards)}}，生成一句古典神秘风格的占卜谚语，15字以内，不要解释，只输出谚语本身`;
+      const text = await siliconFlowChat({
+        model: "deepseek-ai/DeepSeek-V3",
+        prompt,
+        temperature: 0.95,
+        max_tokens: 60
+      });
+      if (text) return text.replace(/[\r\n]+/g, " ").trim();
+      // fallback（无key或失败）：本地古典风短句
+      const pool = ["星辉引路，心火自明", "旧梦将醒，新门将开", "暗潮既退，金光可至", "风止时，答案自现", "守一念，万象皆应"];
+      return pool[Math.floor(Math.random() * pool.length)];
     }
 
     function renderFormationOptions() {
@@ -959,6 +1239,8 @@
       readingBtn.disabled = true;
       readingResult.textContent = "正在洗牌与抽牌，请稍候...";
       cardBox.innerHTML = "<div class='card-state'>正在洗牌中...</div>";
+      proverbBox.style.display = "none";
+      proverbBox.textContent = "";
 
       deckStack.classList.add("show");
       await new Promise((r) => setTimeout(r, 1200));
@@ -968,6 +1250,15 @@
       flipAllCards();
       await new Promise((r) => setTimeout(r, 700 + currentCards.length * 120));
       deckStack.classList.remove("show");
+
+      proverbBox.style.display = "flex";
+      proverbBox.textContent = "正在聆听古老的谚语…";
+      try {
+        const proverb = await generateProverb(currentCards);
+        proverbBox.textContent = `“${proverb}”`;
+      } catch {
+        proverbBox.textContent = "“星辉低语，答案在你心间”";
+      }
 
       readingResult.textContent = `已完成${selectedFormation.name}，点击“查看AI解读（0.9元）”继续。`;
       readingBtn.disabled = false;
@@ -984,20 +1275,8 @@
     }
 
     function buildPrompt(question, cards) {
-      const cardText = cards
-        .map((c, idx) => `${idx + 1}. ${c.position}：${c.name}（${c.orientation}）- ${c.meaning}`)
-        .join("\n");
-      return `你是一位专业塔罗师。请基于以下信息给出温和、具体、可执行的中文解读。
-用户问题：${question}
-牌阵类型：${selectedFormation.name}（${selectedFormation.desc}）
-抽到的牌：
-${cardText}
-要求：
-1. 先给一个一句话总评；
-2. 分析当前能量状态；
-3. 按牌阵顺序逐张解读，每张1-2句；
-4. 给出接下来7天可执行的3条建议；
-4. 语气神秘但不过度夸张，避免绝对化结论。`;
+      const names = cardNameList(cards);
+      return `你是一位神秘的塔罗占卜师，用户的问题是：${question}，抽到的牌是：${names}，请用古典优雅的语气给出深刻的占卜解读，200字左右`;
     }
 
     function localMockReading(question, cards) {
@@ -1027,36 +1306,17 @@ ${orientHint}
     }
 
     async function fetchDeepSeekReading(question, cards) {
-      if (!DEEPSEEK_API_KEY) {
-        await new Promise((r) => setTimeout(r, 700));
-        return localMockReading(question, cards);
-      }
-
-      const resp = await fetch(DEEPSEEK_API_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${DEEPSEEK_API_KEY}`
-        },
-        body: JSON.stringify({
-          model: "deepseek-chat",
-          messages: [
-            { role: "system", content: "你是专业塔罗咨询助手，擅长在同理心框架下提供启发式建议。" },
-            { role: "user", content: buildPrompt(question, cards) }
-          ],
-          temperature: 0.85
-        })
+      // 统一走 SiliconFlow 的 DeepSeek-R1
+      const prompt = buildPrompt(question, cards);
+      const text = await siliconFlowChat({
+        model: "deepseek-ai/DeepSeek-R1",
+        prompt,
+        temperature: 0.7,
+        max_tokens: 420
       });
-
-      if (!resp.ok) {
-        throw new Error(`DeepSeek 请求失败：HTTP ${resp.status}`);
-      }
-      const data = await resp.json();
-      const text = data?.choices?.[0]?.message?.content?.trim();
-      if (!text) {
-        throw new Error("DeepSeek 返回内容为空");
-      }
-      return text;
+      if (text) return text;
+      await new Promise((r) => setTimeout(r, 650));
+      return localMockReading(question, cards);
     }
 
     async function handleRead() {
@@ -1071,7 +1331,7 @@ ${orientHint}
         return;
       }
 
-      readingResult.innerHTML = "支付成功<span class='tag-ok'>模拟</span>，正在连接 AI 解读...";
+      readingResult.textContent = "已确认付款，正在生成 AI 解读...";
       readingBtn.disabled = true;
 
       try {
@@ -1123,7 +1383,15 @@ ${orientHint}
       if (e.target === payModal) closePayModal();
     });
 
+    alipayQr.addEventListener("error", () => {
+      alipayQr.style.display = "none";
+      alipayQrFallback.style.display = "block";
+    });
+
     createParticles();
+    createSandFlow(panelSandLayer, 150);
+    createSandFlow(mandalaSandLayer, 130);
+    startMobileAnimationLoop();
     renderFormationOptions();
   </script>
 </body>
