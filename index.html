@@ -3,9 +3,6 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet">
   <title>塔罗占卜 · 星盘密语</title>
   <style>
     :root {
@@ -19,6 +16,11 @@
       --danger: #ff98b6;
       --ok: #7ff5c6;
       --shadow: 0 20px 45px rgba(0, 0, 0, 0.45);
+      --fps-steps: 60;
+    }
+
+    html.is-mobile {
+      --fps-steps: 30;
     }
 
     * { box-sizing: border-box; }
@@ -26,7 +28,7 @@
       margin: 0;
       min-height: 100vh;
       color: var(--text);
-      font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      font-family: system-ui, -apple-system, "Segoe UI", "Microsoft YaHei", "PingFang SC", sans-serif;
       background:
         radial-gradient(circle at 12% 18%, rgba(130, 10, 40, 0.26), transparent 42%),
         radial-gradient(circle at 84% 10%, rgba(94, 8, 28, 0.2), transparent 44%),
@@ -133,7 +135,7 @@
       font-weight: 700;
       letter-spacing: 0.12em;
       text-shadow: 0 0 16px rgba(214, 171, 88, 0.45);
-      font-family: "Cinzel", "Times New Roman", "Georgia", serif;
+      font-family: ui-serif, "Times New Roman", "Georgia", serif;
     }
 
     .subtitle {
@@ -141,7 +143,7 @@
       margin: 0 0 24px;
       color: var(--muted);
       font-size: 14px;
-      font-family: "ZCOOL XiaoWei", "PingFang SC", "Microsoft YaHei", serif;
+      font-family: "Microsoft YaHei", "PingFang SC", system-ui, sans-serif;
       letter-spacing: 0.08em;
     }
 
@@ -370,7 +372,7 @@
         linear-gradient(165deg, #140810 0%, #0a0408 100%);
       align-items: center;
       color: #e7d6ab;
-      font-family: "Cinzel", "Times New Roman", serif;
+      font-family: ui-serif, "Times New Roman", serif;
       letter-spacing: .15em;
       font-size: 13px;
     }
@@ -442,7 +444,7 @@
       font-weight: 700;
       letter-spacing: .12em;
       margin-top: 4px;
-      font-family: "Cinzel", "Times New Roman", "Georgia", serif;
+      font-family: ui-serif, "Times New Roman", "Georgia", serif;
       text-transform: uppercase;
       color: #f3e6c8;
       text-shadow: 0 0 14px rgba(212, 175, 106, 0.35);
@@ -568,7 +570,7 @@
       display: block;
       font-weight: 700;
       margin-bottom: 6px;
-      font-family: "Cinzel", "Times New Roman", serif;
+      font-family: ui-serif, "Times New Roman", serif;
       font-size: 17px;
       letter-spacing: 0.06em;
     }
@@ -656,6 +658,20 @@
     @keyframes cardRise {
       from { opacity: 0; transform: translateY(18px) scale(.96); }
       to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* Mobile perf: quantize animations to ~30fps */
+    html.is-mobile .mandala-bg,
+    html.is-mobile .entry,
+    html.is-mobile .deck-stack.show,
+    html.is-mobile .card-grid.revealed .tarot-card {
+      animation-timing-function: steps(var(--fps-steps), end) !important;
+    }
+
+    html.is-mobile .particle {
+      animation-timing-function:
+        steps(var(--fps-steps), end),
+        steps(var(--fps-steps), end) !important;
     }
 
     @media (max-width: 560px) {
@@ -855,14 +871,19 @@
     let selectedFormation = formations[0];
     let drawing = false;
 
+    const isMobileDevice =
+      (typeof window.matchMedia === "function" && window.matchMedia("(max-width: 768px)").matches) ||
+      /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+    if (isMobileDevice) document.documentElement.classList.add("is-mobile");
+
     function createParticles() {
-      const count = 80;
+      const count = isMobileDevice ? 20 : 80;
       for (let i = 0; i < count; i++) {
         const p = document.createElement("span");
-        const trail = Math.random() < 0.35;
+        const trail = Math.random() < (isMobileDevice ? 0.18 : 0.35);
         p.className = "particle" + (trail ? " particle--trail" : "");
         p.style.setProperty("--x", `${Math.random() * 100}%`);
-        p.style.setProperty("--size", `${Math.random() * 4.5 + 1}px`);
+        p.style.setProperty("--size", `${Math.random() * (isMobileDevice ? 3.2 : 4.5) + 1}px`);
         p.style.setProperty("--dur", `${Math.random() * 14 + 10}s`);
         p.style.setProperty("--delay", `${Math.random() * -18}s`);
         p.style.setProperty("--drift", `${Math.random() * 90 - 45}px`);
