@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet">
   <title>塔罗占卜 · 星盘密语</title>
   <style>
     :root {
@@ -21,7 +21,7 @@
       --shadow: 0 20px 45px rgba(0, 0, 0, 0.45);
       --fps-steps: 60;
       --font-title: "Cinzel", ui-serif, "Times New Roman", "Georgia", serif;
-      --font-cn: "ZCOOL XiaoWei", "Microsoft YaHei", "PingFang SC", system-ui, sans-serif;
+      --font-cn: "ZCOOL XiaoWei", "Ma Shan Zheng", "STZhongsong", serif;
     }
 
     html.is-mobile {
@@ -47,7 +47,7 @@
     }
 
     .label-song {
-      font-family: "STZhongsong", "华文中宋", serif !important;
+      font-family: var(--font-cn) !important;
       letter-spacing: 0.06em;
     }
 
@@ -294,7 +294,7 @@
       outline: none;
       font-size: 14px;
       line-height: 1.5;
-      font-family: "STZhongsong", "华文中宋", serif;
+      font-family: var(--font-cn);
     }
 
     textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(214, 171, 88, .15); }
@@ -510,7 +510,7 @@
       font-weight: 700;
       letter-spacing: .12em;
       margin-top: 4px;
-      font-family: var(--font-title);
+      font-family: var(--font-cn);
       text-transform: uppercase;
       color: #f3e6c8;
       text-shadow: 0 0 14px rgba(212, 175, 106, 0.35);
@@ -523,6 +523,7 @@
       color: var(--muted);
       font-size: 14px;
       margin-top: 6px;
+      font-family: var(--font-cn);
     }
 
     .reading {
@@ -613,7 +614,6 @@
         background 0.25s ease;
       background: linear-gradient(135deg, rgba(214, 171, 88, 0.22), rgba(73, 53, 24, 0.25));
       border-color: rgba(212, 175, 106, 0.55);
-      box-shadow: 0 0 8px rgba(212,175,55,0.15);
     }
 
     .formation-btn:hover:not(.active) {
@@ -630,8 +630,9 @@
       border-color: #f0d37a;
       background: linear-gradient(135deg, rgba(214, 171, 88, 0.34), rgba(73, 53, 24, 0.38));
       box-shadow:
-        0 0 20px rgba(212,175,55,0.5),
-        0 0 40px rgba(212,175,55,0.2);
+        0 0 0 2px rgba(212, 175, 106, 0.75),
+        0 0 36px rgba(212, 175, 106, 0.32),
+        inset 0 0 26px rgba(74, 0, 16, 0.35);
     }
 
     .formation-title {
@@ -647,7 +648,7 @@
       display: block;
       font-size: 14px;
       color: rgba(241, 232, 210, 0.78);
-      font-family: "FZYaoTi", "方正姚体", "STKaiti", serif;
+      font-family: var(--font-cn);
       letter-spacing: 0.04em;
     }
 
@@ -678,7 +679,7 @@
     .proverb {
       position: relative;
       z-index: 1;
-      margin: 0 2px 14px;
+      margin: 2px 2px 8px;
       padding: 10px 12px;
       border-radius: 12px;
       border: 1px solid rgba(212,175,106,.28);
@@ -691,19 +692,9 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-family: "FZYaoTi", "方正姚体", "STKaiti", serif;
+      font-family: var(--font-cn);
       font-size: 1.3rem;
       letter-spacing: 0.16em;
-      opacity: 0;
-    }
-
-    .proverb.show {
-      animation: proverbFade .6s ease forwards;
-    }
-
-    @keyframes proverbFade {
-      from { opacity: 0; }
-      to { opacity: 1; }
     }
 
     .deck-stack {
@@ -743,17 +734,17 @@
     }
 
     .card-grid.revealed .tarot-card {
-      animation: cardRise 0.8s ease-out both;
+      animation: cardRise 1.2s cubic-bezier(.25,.7,.2,1) both;
     }
 
     .card-grid.revealed .tarot-card:nth-child(1) { animation-delay: 0s; }
-    .card-grid.revealed .tarot-card:nth-child(2) { animation-delay: 0.5s; }
-    .card-grid.revealed .tarot-card:nth-child(3) { animation-delay: 1s; }
+    .card-grid.revealed .tarot-card:nth-child(2) { animation-delay: 0.3s; }
+    .card-grid.revealed .tarot-card:nth-child(3) { animation-delay: 0.6s; }
     .card-grid.revealed .tarot-card:nth-child(n+4) { animation-delay: 0s; }
 
     @keyframes cardRise {
-      from { opacity: 0; transform: translateY(40px); }
-      to { opacity: 1; transform: translateY(0); }
+      from { opacity: 0; transform: translateY(30px) rotateY(90deg); }
+      to { opacity: 1; transform: translateY(0) rotateY(0deg); }
     }
 
     /* Mobile perf: quantize animations to ~30fps */
@@ -1263,19 +1254,16 @@
       renderCards(currentCards);
       await new Promise((r) => setTimeout(r, 180));
       flipAllCards();
-      const proverbPromise = generateProverb(currentCards).catch(() => "星辉低语，答案在你心间");
-      await new Promise((r) => setTimeout(r, 1800));
+      await new Promise((r) => setTimeout(r, 700 + currentCards.length * 120));
       deckStack.classList.remove("show");
 
       try {
-        const proverb = await proverbPromise;
+        const proverb = await generateProverb(currentCards);
         proverbBox.textContent = `“${normalizeProverbText(proverb)}”`;
       } catch {
         proverbBox.textContent = "“星辉低语，答案在你心间”";
       }
       proverbBox.style.display = "flex";
-      void proverbBox.offsetWidth;
-      proverbBox.classList.add("show");
 
       readingResult.textContent = `已完成${selectedFormation.name}，点击“查看AI解读（0.9元）”继续。`;
       readingBtn.disabled = false;
