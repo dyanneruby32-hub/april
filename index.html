@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Noto+Serif+SC:wght@300;400&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Noto+Serif+SC:wght@200;300&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet">
   <title>塔罗占卜 · 星盘密语</title>
   <style>
     :root {
@@ -21,7 +21,7 @@
       --shadow: 0 20px 45px rgba(0, 0, 0, 0.45);
       --fps-steps: 60;
       --font-title: "Cinzel", ui-serif, "Times New Roman", "Georgia", serif;
-      --font-cn: "ZCOOL XiaoWei", "Noto Serif SC", serif;
+      --font-cn: "Noto Serif SC", serif;
     }
 
     html.is-mobile {
@@ -44,6 +44,7 @@
 
     .cn, .q-label, textarea, button, .hint, .reading, .formation-desc, .modal-content, .modal-title {
       font-family: var(--font-cn);
+      font-weight: 300;
     }
 
     .label-song {
@@ -194,7 +195,8 @@
       margin: 0 0 24px;
       color: var(--muted);
       font-size: 15px;
-      font-family: var(--font-cn);
+      font-family: "ZCOOL XiaoWei", serif;
+      font-weight: 400;
       letter-spacing: 0.08em;
       text-shadow:
         0 0 4px rgba(255, 220, 140, 0.35),
@@ -507,7 +509,7 @@
       z-index: 1;
       text-align: center;
       font-size: 20px;
-      font-weight: 700;
+      font-weight: 300;
       letter-spacing: .12em;
       margin-top: 4px;
       font-family: var(--font-cn);
@@ -613,7 +615,9 @@
         box-shadow 0.25s ease,
         background 0.25s ease;
       background: linear-gradient(135deg, rgba(214, 171, 88, 0.22), rgba(73, 53, 24, 0.25));
-      border-color: rgba(212, 175, 106, 0.55);
+      border: 1px solid rgba(212,175,55,0.3);
+      box-shadow: 0 0 6px rgba(212,175,55,0.08);
+      text-shadow: none;
     }
 
     .formation-btn:hover:not(.active) {
@@ -627,17 +631,23 @@
     }
 
     .formation-btn.active {
-      border-color: #f0d37a;
+      border: 1px solid rgba(212,175,55,0.8);
       background: linear-gradient(135deg, rgba(214, 171, 88, 0.34), rgba(73, 53, 24, 0.38));
       box-shadow:
-        0 0 0 2px rgba(212, 175, 106, 0.75),
-        0 0 36px rgba(212, 175, 106, 0.32),
-        inset 0 0 26px rgba(74, 0, 16, 0.35);
+        0 0 20px rgba(212,175,55,0.35),
+        0 0 40px rgba(212,175,55,0.15);
+    }
+
+    .formation-btn.active .formation-title,
+    .formation-btn.active .formation-desc {
+      text-shadow:
+        0 0 15px rgba(212,175,55,0.8),
+        0 0 30px rgba(212,175,55,0.4);
     }
 
     .formation-title {
       display: block;
-      font-weight: 700;
+      font-weight: 300;
       margin-bottom: 6px;
       font-family: var(--font-cn);
       font-size: 17px;
@@ -1023,9 +1033,6 @@
     let currentCards = [];
     let selectedFormation = formations[0];
     let drawing = false;
-    const mobileParticles = [];
-    const mobileSand = [];
-    let mobileAnimatorStarted = false;
 
     const isMobileDevice =
       (typeof window.matchMedia === "function" && window.matchMedia("(max-width: 768px)").matches) ||
@@ -1045,22 +1052,6 @@
         p.style.setProperty("--drift", `${Math.random() * 90 - 45}px`);
         p.style.setProperty("--tw", `${Math.random() * 2.8 + 0.9}s`);
         p.style.setProperty("--peak", `${0.55 + Math.random() * 0.45}`);
-        if (isMobileDevice) {
-          p.style.animation = "none";
-          p.style.left = "0";
-          p.style.top = "0";
-          p.style.willChange = "transform, opacity";
-          mobileParticles.push({
-            el: p,
-            x: Math.random() * 100,
-            y: Math.random() * 110 - 10,
-            vy: Math.random() * 8 + 5,
-            vx: Math.random() * 1.2 - 0.6,
-            peak: 0.45 + Math.random() * 0.45,
-            tw: Math.random() * 1.8 + 0.8,
-            t: Math.random() * Math.PI * 2
-          });
-        }
         particleLayer.appendChild(p);
       }
     }
@@ -1068,7 +1059,7 @@
     function createSandFlow(targetLayer, count = 120) {
       if (!targetLayer) return;
       targetLayer.innerHTML = "";
-      const finalCount = isMobileDevice ? Math.floor(count * 0.45) : count;
+      const finalCount = count;
       for (let i = 0; i < finalCount; i++) {
         const dot = document.createElement("span");
         dot.className = "sand-grain";
@@ -1077,60 +1068,8 @@
         dot.style.setProperty("--dur", `${Math.random() * 14 + 10}s`);
         dot.style.setProperty("--delay", `${Math.random() * -18}s`);
         dot.style.setProperty("--drift", `${Math.random() * 14 - 7}px`);
-        if (isMobileDevice) {
-          dot.style.animation = "none";
-          dot.style.left = "0";
-          dot.style.top = "0";
-          dot.style.willChange = "transform, opacity";
-          mobileSand.push({
-            el: dot,
-            x: Math.random() * 100,
-            y: Math.random() * 110 - 10,
-            vy: Math.random() * 10 + 6,
-            vx: Math.random() * 0.5 - 0.25
-          });
-        }
         targetLayer.appendChild(dot);
       }
-    }
-
-    function startMobileAnimationLoop() {
-      if (!isMobileDevice || mobileAnimatorStarted) return;
-      mobileAnimatorStarted = true;
-      let last = 0;
-      const frameMs = 1000 / 30;
-      const tick = (now) => {
-        if (!last) last = now;
-        const dt = now - last;
-        if (dt >= frameMs) {
-          last = now;
-          const step = dt / 1000;
-          for (const p of mobileParticles) {
-            p.y += p.vy * step;
-            p.x += p.vx * step;
-            if (p.y > 110) {
-              p.y = -8;
-              p.x = Math.random() * 100;
-            }
-            p.t += step / p.tw;
-            const twinkle = 0.55 + 0.45 * Math.sin(p.t * Math.PI * 2);
-            p.el.style.transform = `translate3d(${p.x.toFixed(2)}vw, ${p.y.toFixed(2)}vh, 0)`;
-            p.el.style.opacity = `${(p.peak * twinkle).toFixed(3)}`;
-          }
-          for (const s of mobileSand) {
-            s.y += s.vy * step;
-            s.x += s.vx * step;
-            if (s.y > 110) {
-              s.y = -6;
-              s.x = Math.random() * 100;
-            }
-            s.el.style.transform = `translate3d(${s.x.toFixed(2)}%, ${s.y.toFixed(2)}%, 0)`;
-            s.el.style.opacity = "0.56";
-          }
-        }
-        requestAnimationFrame(tick);
-      };
-      requestAnimationFrame(tick);
     }
 
     async function siliconFlowChat({ model, prompt, temperature = 0.9, max_tokens = 120 }) {
@@ -1396,7 +1335,6 @@ ${orientHint}
     createParticles();
     createSandFlow(panelSandLayer, 150);
     createSandFlow(mandalaSandLayer, 130);
-    startMobileAnimationLoop();
     renderFormationOptions();
   </script>
 </body>
