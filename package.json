@@ -1,0 +1,12 @@
+{
+  "name": "hakuna-tarot",
+  "version": "1.0.0",
+  "description": "Hakuna Matata 塔罗占卜网站",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
